@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ class ArchitectureTest {
     static void exportIssues() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            List.of("C:\\Users\\ceamerca\\Documents\\PROYECTOS\\CLASES\\q10-taller-14\\domain\\model/","C:\\Users\\ceamerca\\Documents\\PROYECTOS\\CLASES\\q10-taller-14/","C:\\Users\\ceamerca\\Documents\\PROYECTOS\\CLASES\\q10-taller-14\\applications\\app-service/","C:\\Users\\ceamerca\\Documents\\PROYECTOS\\CLASES\\q10-taller-14\\domain\\usecase/").forEach(path -> {
+            List.of("C:\\Users\\E302\\Documents\\q10-taller-14\\domain\\model/","C:\\Users\\E302\\Documents\\q10-taller-14\\infrastructure\\entry-points\\reactive-web/","C:\\Users\\E302\\Documents\\q10-taller-14\\infrastructure\\driven-adapters\\r2dbc-postgresql/","C:\\Users\\E302\\Documents\\q10-taller-14/","C:\\Users\\E302\\Documents\\q10-taller-14\\domain\\usecase/","C:\\Users\\E302\\Documents\\q10-taller-14\\applications\\app-service/").forEach(path -> {
                 try {
                     Files.write(Path.of(path, "build/issues.json"), mapper.writeValueAsBytes(issues.getOrDefault(path, new Utils.IssuesReport())));
                 } catch (IOException e) {
@@ -150,6 +151,7 @@ class ArchitectureTest {
                 .or().areAnnotatedWith(Controller.class)
                 .or().areAnnotatedWith(Repository.class)
                 .or().areAnnotatedWith(Service.class)
+                .or().areAnnotatedWith(RestController.class)
                 .should()
                 .haveOnlyFinalFields()
                 .allowEmptyShould(true)
