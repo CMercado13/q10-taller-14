@@ -1,5 +1,7 @@
 package co.com.taller14.api.config;
 
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -10,10 +12,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class TrazaWebFilter implements WebFilter {
 
     private static final String TRACE_ID_HEADER = "X-Traza-Id";
-    private static final String TRACE_ID_CONTEXT = "traceId";
+    private static final String TRACE_ID_CONTEXT = "trazaId";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
