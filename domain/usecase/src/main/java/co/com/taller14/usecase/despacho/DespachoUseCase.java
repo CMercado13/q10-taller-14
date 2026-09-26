@@ -4,7 +4,7 @@ import co.com.taller14.model.cupo.gateways.CupoGateway;
 import co.com.taller14.model.despacho.Despacho;
 import co.com.taller14.model.despacho.EstadoDespacho;
 import co.com.taller14.model.despacho.gateways.DespachoRepository;
-import co.com.taller14.model.evento.DespachoEvento;
+import co.com.taller14.model.eventoDespachoEvento;
 import co.com.taller14.model.evento.gateways.EventPublisher;
 import co.com.taller14.model.exceptions.DespachoNoExisteException;
 import co.com.taller14.model.exceptions.EstadoInvalidoException;
