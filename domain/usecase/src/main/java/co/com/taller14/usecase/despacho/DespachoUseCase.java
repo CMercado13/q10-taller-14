@@ -3,15 +3,15 @@ package co.com.taller14.usecase.despacho;
 import co.com.taller14.model.cupo.gateways.CupoGateway;
 import co.com.taller14.model.despacho.Despacho;
 import co.com.taller14.model.despacho.EstadoDespacho;
+import co.com.taller14.model.despacho.EventoDespacho;
 import co.com.taller14.model.despacho.gateways.DespachoRepository;
-import co.com.taller14.model.eventoDespachoEvento;
 import co.com.taller14.model.evento.gateways.EventPublisher;
 import co.com.taller14.model.exceptions.DespachoNoExisteException;
 import co.com.taller14.model.exceptions.EstadoInvalidoException;
 import co.com.taller14.model.exceptions.ZonaRiesgosaException;
-import co.com.taller14.model.externo.Tarifa;
-import co.com.taller14.model.externo.gateways.TransportistaGateway;
 import co.com.taller14.model.paquete.Paquete;
+import co.com.taller14.model.transportista.TransportistaGateway;
+import lombok.extern.java.Log;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +25,7 @@ import java.util.List;
  * servicios externos (Mono.zip), decisión de riesgo, persistencia transaccional y emisión de
  * eventos al bus interno.
  */
+@Log
 public class DespachoUseCase {
 
     private static final int SCORE_RIESGO_MAXIMO = 80;
@@ -37,10 +38,10 @@ public class DespachoUseCase {
     private final EventPublisher eventPublisher;
 
     public DespachoUseCase(DespachoRepository despachoRepository,
-                            CupoGateway cupoGateway,
-                            CupoSagaUseCase cupoSagaUseCase,
-                            TransportistaGateway transportistaGateway,
-                            EventPublisher eventPublisher) {
+                           CupoGateway cupoGateway,
+                           CupoSagaUseCase cupoSagaUseCase,
+                           TransportistaGateway transportistaGateway,
+                           EventPublisher eventPublisher) {
         this.despachoRepository = despachoRepository;
         this.cupoGateway = cupoGateway;
         this.cupoSagaUseCase = cupoSagaUseCase;
@@ -85,7 +86,7 @@ public class DespachoUseCase {
                     if (score > SCORE_RIESGO_MAXIMO) {
                         return cupoSagaUseCase.compensar(reservados)
                                 .then(despachoRepository.cambiarEstado(recibido.id(), EstadoDespacho.RECHAZADO))
-                                .flatMap(rechazado -> emitir(rechazado))
+                                .flatMap(rechazado -> emitir(rechazado, "RECHAZADO"))
                                 .then(Mono.error(new ZonaRiesgosaException(score)));
                     }
                     return asignar(recibido, reservados, tarifa, score);
@@ -101,7 +102,7 @@ public class DespachoUseCase {
                 .conPaquetes(reservados)
                 .conEstado(EstadoDespacho.ASIGNADO);
         return despachoRepository.asignar(paraAsignar)
-                .flatMap(asignado -> emitir(asignado).thenReturn(asignado));
+                .flatMap(asignado -> emitir(asignado, "ASIGNADO").thenReturn(asignado));
     }
 
     public Mono<Despacho> obtener(Long id) {
@@ -116,12 +117,27 @@ public class DespachoUseCase {
                         return Mono.error(new EstadoInvalidoException(despacho.estado().name(), "EN_RUTA"));
                     }
                     return despachoRepository.cambiarEstado(id, EstadoDespacho.EN_RUTA)
-                            .flatMap(enRuta -> emitir(enRuta).thenReturn(enRuta));
+                            .flatMap(enRuta -> emitir(enRuta, "EN RUTA").thenReturn(enRuta));
                 });
     }
 
-    private Mono<Void> emitir(Despacho despacho) {
-        return eventPublisher.publicar(new DespachoEvento(despacho.id(), despacho.estado().name(),
-                despacho.ciudad(), despacho.trazaId(), Instant.now()));
+    private Mono<Void> emitir(Despacho despacho, String message) {
+        return eventPublisher.publicar(new EventoDespacho(despacho.id(),
+                despacho.estado(),
+                message,
+                Instant.now())
+        );
+    }
+
+
+    public Flux<EventoDespacho> eventos(Long id) {
+        Flux<EventoDespacho> heartbeat = Flux.interval(Duration.ofSeconds(15)).map(t -> EventoDespacho.heartbeat(id));
+        return obtener(id).flatMapMany(despacho -> {
+            Mono<EventoDespacho> actual = Mono.just(EventoDespacho.de(despacho, "estado actual"));
+            Flux<EventoDespacho> vivo = eventPublisher.eventosOrden().filter(e -> id.equals(e.ordenId()));
+            return Flux.merge(actual, vivo, heartbeat)
+                    .takeUntil(e -> e.estado() != null && e.estado().esTerminal())
+                    .doOnCancel(() -> log.info("Cliente cerró stream de orden: " + id));
+        });
     }
 }

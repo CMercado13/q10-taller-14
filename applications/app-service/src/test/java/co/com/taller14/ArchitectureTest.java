@@ -63,7 +63,7 @@ class ArchitectureTest {
     static void exportIssues() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            List.of("C:\\Users\\E302\\Documents\\q10-taller-14\\domain\\model/","C:\\Users\\E302\\Documents\\q10-taller-14\\infrastructure\\entry-points\\reactive-web/","C:\\Users\\E302\\Documents\\q10-taller-14\\infrastructure\\driven-adapters\\r2dbc-postgresql/","C:\\Users\\E302\\Documents\\q10-taller-14/","C:\\Users\\E302\\Documents\\q10-taller-14\\domain\\usecase/","C:\\Users\\E302\\Documents\\q10-taller-14\\applications\\app-service/").forEach(path -> {
+            List.of("C:\\Users\\E302\\Documents\\q10-taller-14\\domain\\model/","C:\\Users\\E302\\Documents\\q10-taller-14\\infrastructure\\entry-points\\reactive-web/","C:\\Users\\E302\\Documents\\q10-taller-14\\infrastructure\\driven-adapters\\rest-consumer/","C:\\Users\\E302\\Documents\\q10-taller-14\\infrastructure\\driven-adapters\\r2dbc-postgresql/","C:\\Users\\E302\\Documents\\q10-taller-14/","C:\\Users\\E302\\Documents\\q10-taller-14\\domain\\usecase/","C:\\Users\\E302\\Documents\\q10-taller-14\\applications\\app-service/").forEach(path -> {
                 try {
                     Files.write(Path.of(path, "build/issues.json"), mapper.writeValueAsBytes(issues.getOrDefault(path, new Utils.IssuesReport())));
                 } catch (IOException e) {
