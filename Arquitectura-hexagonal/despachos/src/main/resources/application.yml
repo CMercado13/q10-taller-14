@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: despachos
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/testdb
+    username: postgres
+    password: ${POSTGRES_PASSWORD:postgres}   # alineado con docker-compose.yml
+  sql:
+    init:
+      mode: always
+
+server:
+  port: 8081
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs          # JSON; el YAML sale en /v3/api-docs.yaml
+    version: openapi_3_0        # 3.0.1: lo importan Postman, Insomnia y los generadores viejos
+    # cambiar a openapi_3_1 si se prefiere la última versión
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+logging:
+  level:
+    com.example.demo: INFO
+    org.springframework.r2dbc.core: DEBUG    # muestra el SQL emitido
+
+external:
+  base-url: http://localhost:${server.port}/external
