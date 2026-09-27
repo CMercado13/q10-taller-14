@@ -1,10 +1,16 @@
 package co.com.taller14.r2dbc.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table("vehiculo")
+@Getter
+@Setter
+@AllArgsConstructor
 public class VehiculoEntity {
 
     @Id
@@ -15,45 +21,11 @@ public class VehiculoEntity {
     @Column("cupo_kg")
     private Integer cupoKg;
 
+    @Column("reservado_kg")
+    private Integer reservadoKg;
+
+
     public VehiculoEntity() {
     }
 
-    public VehiculoEntity(Long id, String placa, String ciudad, Integer cupoKg) {
-        this.id = id;
-        this.placa = placa;
-        this.ciudad = ciudad;
-        this.cupoKg = cupoKg;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPlaca() {
-        return placa;
-    }
-
-    public void setPlaca(String placa) {
-        this.placa = placa;
-    }
-
-    public String getCiudad() {
-        return ciudad;
-    }
-
-    public void setCiudad(String ciudad) {
-        this.ciudad = ciudad;
-    }
-
-    public Integer getCupoKg() {
-        return cupoKg;
-    }
-
-    public void setCupoKg(Integer cupoKg) {
-        this.cupoKg = cupoKg;
-    }
 }

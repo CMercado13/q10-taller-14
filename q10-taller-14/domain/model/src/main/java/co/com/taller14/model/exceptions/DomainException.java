@@ -6,14 +6,9 @@ package co.com.taller14.model.exceptions;
  */
 public abstract class DomainException extends RuntimeException {
 
-    private final String codigo;
-
-    protected DomainException(String codigo, String mensaje) {
+    protected DomainException(String mensaje) {
         super(mensaje);
-        this.codigo = codigo;
     }
 
-    public String getCodigo() {
-        return codigo;
-    }
+    public abstract String codigo();
 }

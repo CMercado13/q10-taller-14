@@ -30,7 +30,8 @@ public class VehiculoUseCase {
     /**
      * Carga masiva NDJSON en lotes de 500 (INSERT ... ON CONFLICT (id) DO UPDATE).
      */
-    public Mono<Long> cargarMasivo(Flux<Vehiculo> vehiculos) {
-        return vehiculoRepository.upsertLote(vehiculos, TAMANO_LOTE_BULK);
+    public Mono<Vehiculo.ResumenCarga> cargarMasivo(Flux<Vehiculo> vehiculos) {
+        return vehiculoRepository.upsertLote(vehiculos, TAMANO_LOTE_BULK)
+                .map(count -> new Vehiculo.ResumenCarga(count, TAMANO_LOTE_BULK / count));
     }
 }

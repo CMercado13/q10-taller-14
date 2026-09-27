@@ -1,13 +1,14 @@
 package co.com.taller14.r2dbc.adapter;
 
-import co.com.taller14.r2dbc.repository.DespachoR2dbcRepository;
-import co.com.taller14.r2dbc.repository.PaqueteR2dbcRepository;
-import co.com.taller14.r2dbc.entity.DespachoEntity;
-import co.com.taller14.r2dbc.entity.PaqueteEntity;
 import co.com.taller14.model.despacho.Despacho;
 import co.com.taller14.model.despacho.EstadoDespacho;
 import co.com.taller14.model.despacho.gateways.DespachoRepository;
+import co.com.taller14.model.despacho.gateways.DespachoTransactionalGateway;
 import co.com.taller14.model.paquete.Paquete;
+import co.com.taller14.r2dbc.entity.DespachoEntity;
+import co.com.taller14.r2dbc.entity.PaqueteEntity;
+import co.com.taller14.r2dbc.repository.DespachoR2dbcRepository;
+import co.com.taller14.r2dbc.repository.PaqueteR2dbcRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
@@ -23,15 +24,15 @@ import java.util.List;
  * (ver DECISIONES.md, sección 4).
  */
 @Repository
-public class DespachoRepositoryAdapter implements DespachoRepository {
+public class DespachoRepositoryAdapter implements DespachoRepository, DespachoTransactionalGateway {
 
     private final DespachoR2dbcRepository despachoRepository;
     private final PaqueteR2dbcRepository paqueteRepository;
     private final TransactionalOperator transactionalOperator;
 
     public DespachoRepositoryAdapter(DespachoR2dbcRepository despachoRepository,
-                                      PaqueteR2dbcRepository paqueteRepository,
-                                      TransactionalOperator transactionalOperator) {
+                                     PaqueteR2dbcRepository paqueteRepository,
+                                     TransactionalOperator transactionalOperator) {
         this.despachoRepository = despachoRepository;
         this.paqueteRepository = paqueteRepository;
         this.transactionalOperator = transactionalOperator;
@@ -121,5 +122,10 @@ public class DespachoRepositoryAdapter implements DespachoRepository {
 
     private Paquete toDomain(PaqueteEntity entity) {
         return new Paquete(entity.getId(), entity.getDespachoId(), entity.getVehiculoId(), entity.getPesoKg());
+    }
+
+    @Override
+    public Mono<Despacho> executeOperationTransactional(Mono<Despacho> operation) {
+        return operation.as(transactionalOperator::transactional);
     }
 }

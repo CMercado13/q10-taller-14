@@ -24,6 +24,12 @@ public record Despacho(
         List<Paquete> paquetes
 ) {
 
+    public static Despacho nuevo(Long clienteId, String ciudad, String trazaId,
+                                 String idemKey, List<Paquete> paquetes) {
+        return new Despacho(null, clienteId, ciudad, EstadoDespacho.RECIBIDO,
+                null, null, null, trazaId, idemKey, Instant.now(), null, paquetes);
+    }
+
     public Despacho conEstado(EstadoDespacho nuevoEstado) {
         return new Despacho(id, clienteId, ciudad, nuevoEstado, tarifa, total, scoreRiesgo,
                 trazaId, idemKey, creadoEn, expiraEn, paquetes);
@@ -34,7 +40,7 @@ public record Despacho(
                 trazaId, idemKey, creadoEn, expiraEn, paquetes);
     }
 
-    public Despacho conTarifaYTotal(BigDecimal nuevaTarifa, BigDecimal nuevoTotal, Integer nuevoScore) {
+    public Despacho conTarifaYTotal(BigDecimal nuevaTarifa, BigDecimal nuevoTotal, Integer nuevoScore, Instant expiraEn) {
         return new Despacho(id, clienteId, ciudad, estado, nuevaTarifa, nuevoTotal, nuevoScore,
                 trazaId, idemKey, creadoEn, expiraEn, paquetes);
     }
@@ -48,4 +54,12 @@ public record Despacho(
         return new Despacho(id, clienteId, ciudad, estado, tarifa, total, scoreRiesgo,
                 trazaId, idemKey, creadoEn, expiraEn, nuevosPaquetes);
     }
+
+    public record ItemPaquete(Long vehiculoId, int pesoKg) {
+    }
+
+    public record Comando(Long clienteId, String ciudad, List<ItemPaquete> paquetes,
+                          String trazaId, String idemKey) {
+    }
+
 }
