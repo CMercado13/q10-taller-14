@@ -1,6 +1,5 @@
 package co.com.taller14.api.config;
 
-import co.com.taller14.api.ApiRest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;

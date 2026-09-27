@@ -1,137 +1,74 @@
 package co.com.taller14.api.exception;
 
+import co.com.taller14.api.dto.ErrorResponse;
+import co.com.taller14.api.support.TrazaIdSupport;
 import co.com.taller14.model.exceptions.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(WebExchangeBindException.class)
-    public Mono<ResponseEntity<ErrorResponseEP>> handleValidationException(WebExchangeBindException ex) {
-        return Mono.deferContextual(cxt -> {
-                    String trazaId = cxt.getOrDefault("traceId", "Not trace");
-                    Map<String, String> errors = ex.getFieldErrors().stream()
-                            .collect(Collectors.toMap(
-                                    FieldError::getField,
-                                    err -> err.getDefaultMessage(),
-                                    (msg1, msg2) -> msg1
-                            ));
-                    return Mono.just(
-                            new ErrorResponseEP(
-                                    HttpStatus.BAD_REQUEST.value(),
-                                    errors,
-                                    trazaId,
-                                    Instant.now()
-                            )
-                    );
-                })
-                .map(error -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error));
-    }
-
     @ExceptionHandler(VehiculoNoExisteException.class)
-    public Mono<ResponseEntity<ErrorResponseEP>> handleValidationException(VehiculoNoExisteException ex) {
-        return Mono.deferContextual(cxt -> {
-                    String trazaId = cxt.getOrDefault("traceId", "Not trace");
-                    return Mono.just(
-                            new ErrorResponseEP(
-                                    HttpStatus.NOT_FOUND.value(),
-                                    Map.of("error", ex.getMessage()),
-                                    trazaId,
-                                    Instant.now()
-                            )
-                    );
-                })
-                .map(error -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(error));
+    public Mono<ResponseEntity<ErrorResponse>> handle(VehiculoNoExisteException ex) {
+        return construir(ex, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CupoInsuficienteException.class)
-    public Mono<ResponseEntity<ErrorResponseEP>> handleValidationException(CupoInsuficienteException ex) {
-        return Mono.deferContextual(cxt -> {
-                    String trazaId = cxt.getOrDefault("traceId", "No trace");
-                    return Mono.just(
-                            new ErrorResponseEP(
-                                    HttpStatus.CONFLICT.value(),
-                                    Map.of("error", ex.getMessage()),
-                                    trazaId,
-                                    Instant.now()
-                            )
-                    );
-                })
-                .map(error -> ResponseEntity.status(HttpStatus.CONFLICT).body(error));
-    }
-
-    @ExceptionHandler(DespachoNoExisteException.class)
-    public Mono<ResponseEntity<ErrorResponseEP>> handleValidationException(DespachoNoExisteException ex) {
-        return Mono.deferContextual(cxt -> {
-                    String trazaId = cxt.getOrDefault("traceId", "No trace");
-                    return Mono.just(
-                            new ErrorResponseEP(
-                                    HttpStatus.NOT_FOUND.value(),
-                                    Map.of("error", ex.getMessage()),
-                                    trazaId,
-                                    Instant.now()
-                            )
-                    );
-                })
-                .map(error -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(error));
-    }
-
-    @ExceptionHandler(EstadoInvalidoException.class)
-    public Mono<ResponseEntity<ErrorResponseEP>> handleValidationException(EstadoInvalidoException ex) {
-        return Mono.deferContextual(cxt -> {
-                    String trazaId = cxt.getOrDefault("traceId", "No trace");
-                    return Mono.just(
-                            new ErrorResponseEP(
-                                    HttpStatus.CONFLICT.value(),
-                                    Map.of("error", ex.getMessage()),
-                                    trazaId,
-                                    Instant.now()
-                            )
-                    );
-                })
-                .map(error -> ResponseEntity.status(HttpStatus.CONFLICT).body(error));
-    }
-
-    @ExceptionHandler(ValidacionException.class)
-    public Mono<ResponseEntity<ErrorResponseEP>> handleValidationException(ValidacionException ex) {
-        return Mono.deferContextual(cxt -> {
-                    String trazaId = cxt.getOrDefault("traceId", "No trace");
-                    return Mono.just(
-                            new ErrorResponseEP(
-                                    HttpStatus.BAD_REQUEST.value(),
-                                    Map.of("error", ex.getMessage()),
-                                    trazaId,
-                                    Instant.now()
-                            )
-                    );
-                })
-                .map(error -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error));
+    public Mono<ResponseEntity<ErrorResponse>> handle(CupoInsuficienteException ex) {
+        return construir(ex, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ZonaRiesgosaException.class)
-    public Mono<ResponseEntity<ErrorResponseEP>> handleValidationException(ZonaRiesgosaException ex) {
-        return Mono.deferContextual(cxt -> {
-                    String trazaId = cxt.getOrDefault("traceId", "No trace");
-                    return Mono.just(
-                            new ErrorResponseEP(
-                                    HttpStatus.UNPROCESSABLE_CONTENT.value(),
-                                    Map.of("error", ex.getMessage()),
-                                    trazaId,
-                                    Instant.now()
-                            )
-                    );
-                })
-                .map(error -> ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(error));
+    public Mono<ResponseEntity<ErrorResponse>> handle(ZonaRiesgosaException ex) {
+        return construir(ex, HttpStatus.UNPROCESSABLE_CONTENT);
+    }
+
+    @ExceptionHandler(DespachoNoExisteException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handle(DespachoNoExisteException ex) {
+        return construir(ex, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(EstadoInvalidoException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handle(EstadoInvalidoException ex) {
+        return construir(ex, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ValidacionException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handle(ValidacionException ex) {
+        return construir(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(WebExchangeBindException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handle(WebExchangeBindException ex) {
+        String mensaje = ex.getFieldErrors().stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .reduce((a, b) -> a + "; " + b)
+                .orElse("Error de validación");
+
+        return TrazaIdSupport.actual().map(trazaId ->
+                ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ErrorResponse.de("VALIDACION", mensaje, trazaId)));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleGenerico(Exception ex) {
+        log.error("::handleGenerico error: {}", ex.getMessage(), ex);
+        return TrazaIdSupport.actual().map(trazaId ->
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(ErrorResponse.de("ERROR_INTERNO", HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), trazaId)));
+    }
+
+    private Mono<ResponseEntity<ErrorResponse>> construir(DomainException ex, HttpStatus status) {
+        return TrazaIdSupport.actual().map(trazaId ->
+                ResponseEntity.status(status)
+                        .body(ErrorResponse.de(ex.codigo(), ex.getMessage(), trazaId)));
     }
 
 }

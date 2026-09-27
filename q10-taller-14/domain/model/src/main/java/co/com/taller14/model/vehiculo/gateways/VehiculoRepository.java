@@ -15,6 +15,11 @@ public interface VehiculoRepository {
 
     Flux<Vehiculo> todos();
 
+    Mono<Vehiculo> reservarCupo(Long vehiculoId, int pesoKg);
+
+    Mono<Vehiculo> liberarCupo(Long vehiculoId, int pesoKg);
+
+    Mono<Vehiculo> consumirReservado(Long vehiculoId, int pesoKg);
     /**
      * Carga masiva tipo upsert (INSERT ... ON CONFLICT (id) DO UPDATE) en lotes.
      */

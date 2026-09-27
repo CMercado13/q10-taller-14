@@ -10,4 +10,12 @@ public record Paquete(Long id, Long despachoId, Long vehiculoId, Integer pesoKg)
             throw new IllegalArgumentException("pesoKg debe ser mayor a cero");
         }
     }
+
+    public Paquete asignadoA(Long vehiculoId) {
+        return new Paquete(id, despachoId, vehiculoId, pesoKg);
+    }
+
+    public Paquete conDespacho(Long despachoId) {
+        return new Paquete(id, despachoId, vehiculoId, pesoKg);
+    }
 }
