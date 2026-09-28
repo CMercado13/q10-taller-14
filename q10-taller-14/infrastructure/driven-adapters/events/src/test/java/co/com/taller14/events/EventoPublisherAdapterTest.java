@@ -22,7 +22,7 @@ class EventoPublisherAdapterTest {
 
         adapter.eventosOrden().subscribe(primero::add);
         adapter.eventosOrden().subscribe(segundo::add);
-        adapter.publicar(evento).subscribe();
+        adapter.publicar(evento);
 
         assertEquals(List.of(evento), primero);
         assertEquals(List.of(evento), segundo);

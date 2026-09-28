@@ -10,14 +10,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 @ContextConfiguration(classes = {ProbeController.class})
 @WebFluxTest
-@Import({CorsConfig.class, SecurityHeadersConfig.class})
+@Import({CorsConfig.class, SecurityHeadersConfig.class, TrazaIdWebFilter.class})
 class ConfigTest {
 
     @Autowired
     private WebTestClient webTestClient;
 
     @Test
-    void corsConfigurationShouldAllowOrigins() {
+    void corsConfigurationShouldAllowOriginsAndTraceId() {
         webTestClient.get()
                 .uri("/api/usecase/path")
                 .exchange()
@@ -29,7 +29,8 @@ class ConfigTest {
                 .expectHeader().doesNotExist("Server")
                 .expectHeader().valueEquals("Cache-Control", "no-store")
                 .expectHeader().valueEquals("Pragma", "no-cache")
-                .expectHeader().valueEquals("Referrer-Policy", "strict-origin-when-cross-origin");
+                .expectHeader().valueEquals("Referrer-Policy", "strict-origin-when-cross-origin")
+                .expectHeader().exists("X-Traza-Id");
     }
 
 }

@@ -24,7 +24,7 @@ public class EventosDespachoUseCase {
             Flux<DespachoEvento> vivo = eventPublisherGateway.eventosOrden().filter(e -> id.equals(e.despachoId()));
             return Flux.merge(actual, vivo, heartbeat)
                     .takeUntil(e -> e.estado() != null && e.estado().esTerminal())
-                    .doOnCancel(() -> log.info("Cliente cerró stream de orden: " + id));
+                    .doOnCancel(() -> log.info("::eventos cliente cerró stream de orden: " + id));
         });
     }
 

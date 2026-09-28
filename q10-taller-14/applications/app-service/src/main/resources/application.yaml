@@ -8,7 +8,7 @@ spring:
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/test_db
+    url: r2dbc:postgresql://localhost:5432/testdb
     username: postgres
     password: postgres
     pool:

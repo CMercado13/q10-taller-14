@@ -18,7 +18,7 @@ public class ConsumerClimaAdapter implements ClimaGateway {
     @Override
     public Mono<Clima> consultar(String ciudad) {
         return webClient.get()
-                .uri("/clima/{ciudad}", ciudad)
+                .uri("/external/clima/{ciudad}", ciudad)
                 .retrieve()
                 .bodyToMono(ClimaResponse.class)
                 .map(r -> new Clima(ciudad, r.ventana(), r.factorDemora()))
