@@ -32,6 +32,9 @@ public class VehiculoUseCase {
      */
     public Mono<Vehiculo.ResumenCarga> cargarMasivo(Flux<Vehiculo> vehiculos) {
         return vehiculoRepository.upsertLote(vehiculos, TAMANO_LOTE_BULK)
-                .map(count -> new Vehiculo.ResumenCarga(count, TAMANO_LOTE_BULK / count));
+                .map(count -> {
+                    long lotes = count == 0 ? 0L : (count + TAMANO_LOTE_BULK - 1) / TAMANO_LOTE_BULK;
+                    return new Vehiculo.ResumenCarga(count, lotes);
+                });
     }
 }

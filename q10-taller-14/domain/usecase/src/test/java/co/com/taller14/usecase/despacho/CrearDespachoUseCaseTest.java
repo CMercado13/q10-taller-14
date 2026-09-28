@@ -51,7 +51,6 @@ class CrearDespachoUseCaseTest {
         eventPublisherGateway = Mockito.mock(EventPublisherGateway.class);
         useCase = new CrearDespachoUseCase(despachoRepository, vehiculoRepository, tarifaGateway,
                 climaGateway, scoringGateway, eventPublisherGateway);
-        when(eventPublisherGateway.publicar(any())).thenReturn(Mono.empty());
     }
 
     @Test

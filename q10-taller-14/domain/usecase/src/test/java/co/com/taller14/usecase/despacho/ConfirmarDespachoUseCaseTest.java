@@ -37,7 +37,6 @@ class ConfirmarDespachoUseCaseTest {
         DespachoTransactionalGateway transactionalGateway = Mockito.mock(DespachoTransactionalGateway.class);
         eventPublisherGateway = Mockito.mock(EventPublisherGateway.class);
         when(transactionalGateway.executeOperationTransactional(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(eventPublisherGateway.publicar(any())).thenReturn(Mono.empty());
         useCase = new ConfirmarDespachoUseCase(despachoRepository, vehiculoRepository,
                 transactionalGateway, eventPublisherGateway);
     }

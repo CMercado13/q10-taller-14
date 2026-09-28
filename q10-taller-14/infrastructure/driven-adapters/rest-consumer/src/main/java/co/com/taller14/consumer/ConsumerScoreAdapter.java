@@ -18,7 +18,7 @@ public class ConsumerScoreAdapter implements ScoringGateway {
     @Override
     public Mono<ScoreRiesgo> consultar(String ciudad) {
         return webClient.get()
-                .uri("/scoring/{ciudad}", ciudad)
+                .uri("/external/scoring/{ciudad}", ciudad)
                 .retrieve()
                 .bodyToMono(ScoringResponse.class)
                 .map(r -> new ScoreRiesgo(ciudad, r.score()))

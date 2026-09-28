@@ -8,7 +8,8 @@ CREATE TABLE vehiculo (
     id      BIGINT PRIMARY KEY,
     placa   VARCHAR(10) NOT NULL UNIQUE,
     ciudad  VARCHAR(8)  NOT NULL,
-    cupo_kg INT         NOT NULL CHECK (cupo_kg >= 0)
+    cupo_kg INT         NOT NULL CHECK (cupo_kg >= 0),
+    reservado_kg INT          NOT NULL DEFAULT 0 CHECK (reservado_kg >= 0)
 );
 
 CREATE TABLE despacho (

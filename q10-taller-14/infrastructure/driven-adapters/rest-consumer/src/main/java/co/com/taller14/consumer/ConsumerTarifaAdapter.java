@@ -21,7 +21,7 @@ public class ConsumerTarifaAdapter implements TarifaGateway {
     @Override
     public Mono<Tarifa> consultar(String ciudad) {
         return webClient.get()
-                .uri("/tarifa/{ciudad}", ciudad)
+                .uri("/external/tarifa/{ciudad}", ciudad)
                 .exchangeToMono(response -> {
                     if (response.statusCode().is4xxClientError()) {
                         log.error("::consultar tarifa error: {}", response.statusCode().value());

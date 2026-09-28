@@ -1,6 +1,5 @@
 package co.com.taller14.api;
 
-import co.com.taller14.api.config.TrazaIdWebFilter;
 import co.com.taller14.api.dto.DespachoRequest;
 import co.com.taller14.api.dto.DespachoResponse;
 import co.com.taller14.api.support.TrazaIdSupport;
@@ -14,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,36 +29,47 @@ public class DespachoController {
     private final EventosDespachoUseCase eventosDespachoUseCase;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<DespachoResponse> crear(
-            @Valid @RequestBody DespachoRequest request,
-            @RequestHeader(value = TrazaIdWebFilter.HEADER, required = false) String trazaIdHeader,
-            @RequestHeader(value = "Idempotency-Key", required = false) String idemKey) {
+    public Mono<ResponseEntity<DespachoResponse>> crear(@Valid @RequestBody DespachoRequest request,
+                                                        @RequestHeader(value = "Idempotency-Key", required = false) String idemKey) {
 
         return TrazaIdSupport.actual().flatMap(trazaId -> {
-            var paquetes = request.paquetes().stream()
-                    .map(p -> new Despacho.ItemPaquete(p.vehiculoId(), p.pesoKg()))
-                    .toList();
 
-            var comando = new Despacho.Comando(
-                    request.clienteId(), request.ciudad(), paquetes, trazaId, idemKey);
+                    var paquetes = request.paquetes().stream()
+                            .map(p -> new Despacho.ItemPaquete(p.vehiculoId(), p.pesoKg()))
+                            .toList();
 
-            return crearDespachoUseCase.crear(comando).map(DespachoResponse::desde);
-        });
+                    var comando = new Despacho.Comando(request.clienteId(),
+                            request.ciudad(),
+                            paquetes,
+                            trazaId,
+                            idemKey
+                    );
+
+                    return crearDespachoUseCase.crear(comando).map(DespachoResponse::desde);
+                })
+                .map(dr -> ResponseEntity.status(HttpStatus.CREATED)
+                        .body(dr)
+                );
     }
 
     @GetMapping("/{id}")
-    public Mono<DespachoResponse> obtener(@PathVariable("id") Long id) {
-        return consultarDespachoUseCase.obtener(id).map(DespachoResponse::desde);
+    public Mono<ResponseEntity<DespachoResponse>> obtener(@PathVariable("id") Long id) {
+        return consultarDespachoUseCase.obtener(id).map(DespachoResponse::desde)
+                .map(ResponseEntity::ok);
     }
 
     @PostMapping("/{id}/confirm")
-    public Mono<DespachoResponse> confirmar(@PathVariable("id") Long id) {
-        return confirmarDespachoUseCase.confirmar(id).map(DespachoResponse::desde);
+    public Mono<ResponseEntity<DespachoResponse>> confirmar(@PathVariable("id") Long id) {
+        return confirmarDespachoUseCase.confirmar(id).map(DespachoResponse::desde)
+                .map(ResponseEntity::ok);
     }
 
     @GetMapping(value = "/{id}/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<DespachoEvento> eventos(@PathVariable("id") Long id) {
-        return eventosDespachoUseCase.eventos(id);
+    public ResponseEntity<Flux<DespachoEvento>> eventos(@PathVariable("id") Long id) {
+        Flux<DespachoEvento> stream = eventosDespachoUseCase.eventos(id);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_EVENT_STREAM)
+                .body(stream);
     }
 }

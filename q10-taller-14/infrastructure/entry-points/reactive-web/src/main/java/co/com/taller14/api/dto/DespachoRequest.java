@@ -10,5 +10,6 @@ import java.util.List;
 public record DespachoRequest(
         @NotNull(message = "El cliente es obligatorio") Long clienteId,
         @NotBlank(message = "La ciudad destino es obligatoria") String ciudad,
-        @NotEmpty(message = "Debe incluir al menos un paquete") @Valid List<PaqueteRequest> paquetes
-) {}
+        @NotEmpty(message = "Debe incluir al menos un paquete") List<@Valid PaqueteRequest> paquetes
+) {
+}
